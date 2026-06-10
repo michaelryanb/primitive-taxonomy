@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "topology-wiring-entry-v1.1",
+  "title": "Topology Wiring Blueprint v1.1",
+  "description": "Schema for a topology wiring blueprint — a pattern for arranging primitive categories into a working system shape. Each topology is a named wiring pattern with nodes, edges, constraints, and a definable parameterization surface.",
+  "type": "object",
+  "required": [
+    "topology_name",
+    "shape_description",
+    "nodes",
+    "edges",
+    "constraints",
+    "failure_domain",
+    "parameterization_surface"
+  ],
+  "properties": {
+    "topology_name": {
+      "type": "string",
+      "description": "Kebab-case topology identifier matching the directory name"
+    },
+    "shape_description": {
+      "type": "string",
+      "description": "Prose description of the wiring pattern: what connects to what and in what order"
+    },
+    "shape_diagram": {
+      "type": "string",
+      "description": "ASCII art diagram showing nodes and data flow direction"
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Node definitions — each node is a role filled by a primitive from a taxonomy category",
+      "items": {
+        "type": "object",
+        "required": ["node_id", "role", "primitive_category", "cardinality"],
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "description": "Short identifier for this node within the topology"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["source", "transform", "sink", "aggregator", "buffer", "trigger", "scheduler", "fork", "replicator", "filter", "gate"],
+            "description": "The functional role this node plays in the wiring pattern"
+          },
+          "primitive_category": {
+            "type": "string",
+            "description": "The taxonomy category whose primitives can fill this role (CATEGORY_01_SOURCES through CATEGORY_06_STATE_MANAGERS)"
+          },
+          "cardinality": {
+            "type": "string",
+            "enum": ["1", "0..1", "1..n", "0..n"],
+            "description": "How many instances of this node the topology requires"
+          },
+          "description": {
+            "type": "string",
+            "description": "What this node does in the topology context"
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Edge definitions — directed connections between nodes with data flow semantics",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "data_flow"],
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Source node_id for this edge"
+          },
+          "to": {
+            "type": "string",
+            "description": "Target node_id for this edge"
+          },
+          "data_flow": {
+            "type": "string",
+            "enum": ["push", "pull", "bidirectional"],
+            "description": "Push: source initiates transfer. Pull: target initiates transfer. Bidirectional: both."
+          },
+          "delivery": {
+            "type": "string",
+            "enum": ["sequential", "parallel", "broadcast", "round-robin", "first-available"],
+            "description": "Delivery mode when multiple targets exist"
+          },
+          "buffer_requirement": {
+            "type": "string",
+            "enum": ["none", "in-memory", "persistent"],
+            "description": "Whether the edge requires buffering between nodes"
+          },
+          "edge_scope": {
+            "type": "string",
+            "enum": ["topology-level", "parameterization-level"],
+            "description": "Whether this edge is load-bearing structural (topology-level — its removal changes the wiring pattern class) or a parameterization choice (parameterization-level — its presence or absence varies per instantiation without changing the topology class). Added in v1.1 to resolve 3-model divergence where models disagree on optional edges (dynamic registration, comparator taps, default branches)."
+          },
+          "description": {
+            "type": "string",
+            "description": "What flows across this edge and how"
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Topology-level constraints that must hold for the wiring to be valid",
+      "properties": {
+        "state_boundary": {
+          "type": "string",
+          "enum": ["per-call", "session", "persistent"],
+          "description": "Where state is held in the topology"
+        },
+        "determinism_chain": {
+          "type": "string",
+          "description": "Conditions under which the entire topology produces deterministic output"
+        },
+        "isolation_boundaries": {
+          "type": "string",
+          "description": "Where process/thread/sandbox boundaries must or should exist"
+        },
+        "ordering_requirement": {
+          "type": "string",
+          "enum": ["strict", "relaxed", "none"],
+          "description": "Whether node execution order is constrained"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional constraints not captured above"
+        }
+      }
+    },
+    "failure_domain": {
+      "type": "object",
+      "description": "How failures propagate through the topology",
+      "properties": {
+        "source_failure": {
+          "type": "string",
+          "description": "What happens when a source node fails"
+        },
+        "transform_failure": {
+          "type": "string",
+          "description": "What happens when a transform node fails"
+        },
+        "sink_failure": {
+          "type": "string",
+          "description": "What happens when a sink node fails"
+        },
+        "intermediate_failure": {
+          "type": "string",
+          "description": "What happens when an edge or buffer fails"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional failure domain notes"
+        }
+      }
+    },
+    "parameterization_surface": {
+      "type": "object",
+      "description": "What can vary when instantiating this topology for a specific domain",
+      "properties": {
+        "variable_primitives": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Which nodes can be filled with different primitives from their category"
+        },
+        "variable_count": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Which nodes can vary in cardinality"
+        },
+        "variable_delivery": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Which edges can vary in delivery mode"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional parameterization notes"
+        }
+      }
+    }
+  }
+}

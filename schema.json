@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "primitive-entry",
+  "title": "Primitive Taxonomy Entry",
+  "description": "Schema for a single leaf-function primitive in the systems engineering taxonomy. Each primitive is an atomic, independently implementable unit of software capability.",
+  "type": "object",
+  "required": [
+    "primitive_name",
+    "category",
+    "operation",
+    "signature_shape",
+    "state_required",
+    "determinism",
+    "platform",
+    "decomposable",
+    "isolation",
+    "ownership"
+  ],
+  "properties": {
+    "primitive_name": {
+      "type": "string",
+      "description": "Unique kebab-case identifier for the primitive within its category"
+    },
+    "category": {
+      "type": "string",
+      "description": "Taxonomic category the primitive belongs to (e.g., CATEGORY_03_TRANSFORMS)"
+    },
+    "operation": {
+      "type": "string",
+      "description": "One-sentence description of what the primitive does. Self-contained; no references to other primitives or categories."
+    },
+    "signature_shape": {
+      "type": "string",
+      "description": "Parameterized type signature using generic type placeholders: ReturnType function_name(ParamType1, ParamType2). No concrete types (int, string, etc.) — use T, K, V, E, I, O, B (byte-sequence), N (number), S (scalar), C (collection), P (predicate)."
+    },
+    "state_required": {
+      "type": "string",
+      "enum": ["no", "per-call", "session", "persistent"],
+      "description": "Whether the primitive requires state to function: no (stateless, pure function), per-call (needs input/context per invocation), session (needs state maintained across calls within a session), persistent (needs durable storage across sessions)"
+    },
+    "determinism": {
+      "type": "string",
+      "enum": ["deterministic", "probabilistic", "entropy-dependent"],
+      "description": "Determinism of output given identical inputs: deterministic (same input always yields same output), probabilistic (output varies by chance), entropy-dependent (output varies based on external entropy source)"
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["stdlib", "posix", "win32", "darwin", "lib-ext"],
+      "description": "Minimum platform requirement: stdlib (language standard library, cross-platform), posix (POSIX-compliant systems), win32 (Windows API), darwin (macOS/iOS specific), lib-ext (requires third-party library)"
+    },
+    "decomposable": {
+      "type": "boolean",
+      "description": "Whether this primitive can be built from simpler primitives in the taxonomy"
+    },
+    "decomposes_to": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of simpler primitive names this can be decomposed into. Omit when decomposable is false."
+    },
+    "depends_on": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of primitives this calls internally at runtime. Empty array means no internal dependencies."
+    },
+    "isolation": {
+      "type": "string",
+      "enum": ["none", "process", "thread", "sandbox"],
+      "description": "Recommended execution isolation boundary: none (runs in caller context), process (should run in separate process), thread (separate thread sufficient), sandbox (requires restricted execution environment)"
+    },
+    "ownership": {
+      "type": "string",
+      "enum": ["caller", "callee", "shared"],
+      "description": "Resource ownership model: caller (caller owns all side effects), callee (primitive manages its own resources), shared (both caller and callee share responsibility)"
+    }
+  }
+}
