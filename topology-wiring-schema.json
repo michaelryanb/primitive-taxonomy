@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "topology-wiring-entry-v1.1",
-  "title": "Topology Wiring Blueprint v1.1",
+  "$id": "topology-wiring-entry-v1.2",
+  "title": "Topology Wiring Blueprint v1.2",
   "description": "Schema for a topology wiring blueprint — a pattern for arranging primitive categories into a working system shape. Each topology is a named wiring pattern with nodes, edges, constraints, and a definable parameterization surface.",
   "type": "object",
   "required": [
@@ -39,8 +39,19 @@
           },
           "role": {
             "type": "string",
-            "enum": ["source", "transform", "sink", "aggregator", "buffer", "trigger", "scheduler", "fork", "replicator", "filter", "gate"],
-            "description": "The functional role this node plays in the wiring pattern"
+            "enum": [
+              "source", "transform", "sink", "aggregator", "buffer",
+              "trigger", "scheduler", "fork", "replicator", "filter", "gate",
+              "sampler", "throttle", "race-gate", "consensus-gate", "staleness-gate",
+              "window-buffer", "fault-injector", "adversary", "validator",
+              "dead-letter", "registry", "convergence-gate"
+            ],
+            "description": "The functional role this node plays in the wiring pattern. Use the most specific role available; generic roles are fallback when no specific role captures the topology-defining semantics."
+          },
+          "role_category": {
+            "type": "string",
+            "enum": ["endpoint", "transformation", "aggregation", "routing", "gating", "state", "activation"],
+            "description": "Optional coarse grouping for the node role. Advisory metadata only; structural identity is determined by role."
           },
           "primitive_category": {
             "type": "string",
