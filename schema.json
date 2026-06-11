@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "primitive-entry",
-  "title": "Primitive Taxonomy Entry",
+  "$id": "primitive-entry-v1.2",
+  "title": "Primitive Taxonomy Entry v1.2",
   "description": "Schema for a single leaf-function primitive in the systems engineering taxonomy. Each primitive is an atomic, independently implementable unit of software capability.",
   "type": "object",
   "required": [
@@ -31,7 +31,7 @@
     },
     "signature_shape": {
       "type": "string",
-      "description": "Parameterized type signature using generic type placeholders: ReturnType function_name(ParamType1, ParamType2). No concrete types (int, string, etc.) — use T, K, V, E, I, O, B (byte-sequence), N (number), S (scalar), C (collection), P (predicate)."
+      "description": "Parameterized type signature using generic type placeholders: ReturnType function_name(ParamType1, ParamType2). No concrete types. Legend: B (byte-sequence), N (number), S (scalar), C (collection), P (predicate), H (handle), A (address/region), K (key), V (value), T (timestamp), R (result/status), L (path/locator), M (mode/flag-set), D (format/grammar-descriptor), F (callable), E (encoding), void."
     },
     "state_required": {
       "type": "string",
@@ -40,8 +40,8 @@
     },
     "determinism": {
       "type": "string",
-      "enum": ["deterministic", "probabilistic", "entropy-dependent"],
-      "description": "Determinism of output given identical inputs: deterministic (same input always yields same output), probabilistic (output varies by chance), entropy-dependent (output varies based on external entropy source)"
+      "enum": ["deterministic", "probabilistic", "entropy-dependent", "external-state-dependent"],
+      "description": "Determinism of output given identical inputs: deterministic (same input always yields same output), probabilistic (output varies by chance), entropy-dependent (output varies based on external entropy source), external-state-dependent (output depends on OS/runtime state — clocks, process lifecycle, scheduler, environment)"
     },
     "platform": {
       "type": "string",
